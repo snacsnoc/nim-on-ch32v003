@@ -5,17 +5,33 @@ A pure Nim, bare-metal HAL for the **CH32V003F4P6** (16 KB Flash / 2 KB RAM), re
 *   **Pure Nim HAL:** Peripherals are accessed via a type-safe HAL generated from SVD files. No C library wrappers.
 *   Nim -> C -> riscv-none-elf-gcc (`rv32ec / ilp32e`).
 *   Minimal C/ASM for startup (`startup_ch32v003.S`).
-*   `panicoverride.nim` stub for bare-metal panic handling.
+*   `panicoverride.nim` stub + misc stubs for bare-metal panic handling.
 *   Build rules in `Makefile` and flags in `nim.cfg`.
 
-## build 
+## Toolchain Setup
+
+
+You need a RISC-V GCC that supports `rv32ec_zicsr` and `ilp32e`:
+
+```bash
+riscv-none-elf-gcc --version # must accept -march=rv32ec_zicsr -mabi=ilp32e
+```
+
+## Build 
 
 ```bash
 make clean
 make examples       # blink.bin, uart_blink.bin
 ```
+You can also build individual targets::
+```bash
+make blink.elf      # compile ELF
+make uart_blink.bin # compile + objcopy
+make blink.hex      # create Intel HEX
+```
 
-## flash
+
+## Flash
 
 ```bash
 make flash    # flashes via minichlink
