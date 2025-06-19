@@ -1,8 +1,6 @@
 # Nim-on-CH32V003
 
-A pure Nim, bare-metal HAL for the **CH32V003F4P6** (16 KB Flash / 2 KB RAM). The `blink` example toggles PC5 every 250 ms.
-
-This project is a pure Nim implementation, removing the dependency on WCH's C libraries.
+A pure Nim, bare-metal HAL for the **CH32V003F4P6** (16 KB Flash / 2 KB RAM), removing the dependency on WCH's C libraries.
 
 *   **Pure Nim HAL:** Peripherals are accessed via a type-safe HAL generated from SVD files. No C library wrappers.
 *   Nim -> C -> riscv-none-elf-gcc (`rv32ec / ilp32e`).
