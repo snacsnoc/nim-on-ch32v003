@@ -1,24 +1,27 @@
-# Nim-on-CH32V003 — blink PoC
+# Nim-on-CH32V003
 
-Bare-metal Nim demo for **CH32V003F4P6** (16 KB Flash / 2 KB RAM).  
-PC5 toggles every 250 ms.
+A pure Nim, bare-metal HAL for the **CH32V003F4P6** (16 KB Flash / 2 KB RAM). The `blink` example toggles PC5 every 250 ms.
 
-* Nim -> C -> riscv-none-elf-gcc (`rv32ec / ilp32e`)
-* minimal C/ASM in `c_src/` (startup_ch32v003.S + nim_interface.c)  
-* `panicoverride.nim` stub to disable Nim’s panic on bare-metal  
-* build rules in `Makefile` and flags in `nim.cfg`
+This project was is a pure Nim implementation, removing the dependency on WCH's C libraries.
+
+*   **Pure Nim HAL:** Peripherals are accessed via a type-safe HAL generated from SVD files. No C library wrappers.
+*   Nim -> C -> riscv-none-elf-gcc (`rv32ec / ilp32e`).
+*   Minimal C/ASM for startup (`startup_ch32v003.S`).
+*   `panicoverride.nim` stub for bare-metal panic handling.
+*   Build rules in `Makefile` and flags in `nim.cfg`.
 
 ## build / flash
 
 ```bash
 make clean
-make          # blink.bin
+make examples       # blink.bin, uart_blink.bin
 make flash    # flashes via minichlink
 ```
 
 ### Credits
 
-* linker script from cjacker’s pre-converted WCH CH32V003EVT GCC/Makefile repo  
-  <https://github.com/cjacker/ch32v003evt_gcc_makefile>  
-
-* system libs + device headers (`ch32v00x.h`, `system_ch32v00x.*`, `core_riscv.*`, `startup_ch32v00x.s`, `link.ld`) © WCH — Apache-2.0
+*   Linker script from cjacker’s CH32V003EVT GCC/Makefile repo:  
+    <https://github.com/cjacker/ch32v003evt_gcc_makefile>
+*   Fixed ch32v003 SVD file from the ch32-rs project:  
+    <https://github.com/ch32-rs/ch32-rs/tree/main/svd/fixed>
+*   Original startup code (`startup_ch32v00x.S`) © WCH — Apache-2.0.
