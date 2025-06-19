@@ -1,5 +1,5 @@
 NIM_COMPILER = nim
-NIM_FLAGS    = --skipCfg -d:release --nimcache:./nimcache 
+NIM_FLAGS    = --cc:gcc --skipUserCfg -d:release --nimcache:./nimcache
 
 ELF_NAME     = blink
 BIN_NAME     = $(ELF_NAME).bin
@@ -17,39 +17,39 @@ FLASHER          = minichlink
 
 HEX_NAME = $(ELF_NAME).hex
 
-ASM_FLAGS     = -march=rv32ec_zicsr -mabi=ilp32e -Os -g
-CFLAGS     = -march=rv32ec_zicsr -mabi=ilp32e -ffreestanding -Os -msmall-data-limit=8 $(INCLUDE_DIR)
-      
+ASM_FLAGS     = -march=rv32ec_zicsr -mabi=ilp32e -Os
 
-.PHONY: all flash clean
+EXAMPLES        := $(basename $(notdir $(filter-out examples/panicoverride.nim, $(wildcard examples/*.nim))))
+ELFS            := $(addsuffix .elf,$(EXAMPLES))
+BINS            := $(addsuffix .bin,$(EXAMPLES))
 
-all: $(BIN_NAME)
+.PHONY: all examples clean flash $(EXAMPLES)
 
-startup_ch32v003.o: c_src/startup_ch32v003.S
+all: blink.bin
+
+examples: $(BINS)
+
+system/startup_ch32v003.o: system/startup_ch32v003.S
 	@echo "AS $<"
 	$(AS) $(ASM_FLAGS) -c $< -o $@
 
-$(ELF_NAME): blink.nim startup_ch32v003.o
-	@echo "NIM $@"
-	$(NIM_COMPILER) c $(NIM_FLAGS) \
-		--passC:"$(CFLAGS)" \
-		--passL:"startup_ch32v003.o -lgcc -Wl,-Map=$(ELF_NAME).map -Wl,-gc-sections -Tlink.ld -nostdlib" \
-		-o:$(ELF_NAME) blink.nim
+%.elf: examples/%.nim system/startup_ch32v003.o
+	@echo "NIM → $@"
+	$(NIM_COMPILER) c $(NIM_FLAGS) -o:$@ $<
 
-$(BIN_NAME): $(ELF_NAME)
-	@echo "OBJCOPY $@"
+%.bin: %.elf
+	@echo "BIN → $@"
 	$(OBJCOPY) -O binary $< $@
 
 flash: $(BIN_NAME)
 	@echo "FLASH $@"
 	$(FLASHER) --erase --flash $<
 
-
-$(HEX_NAME): $(ELF_NAME)
-	@echo "HEX $@"
+%.hex: %.elf
+	@echo "HEX → $@"
 	$(OBJCOPY) -O ihex $< $@
 
 clean:
 	@echo "CLEAN"
-	rm -f $(ELF_NAME) $(BIN_NAME) startup_ch32v003.o *.map
+	rm -f *.elf *.bin *.hex system/startup_ch32v003.o *.map
 	rm -rf ./nimcache
