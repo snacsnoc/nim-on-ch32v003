@@ -131,7 +131,7 @@ proc write*(gpio: GpioPin, state: PinState) =
   gpio.port.write_pin(gpio.pin, state)
 
 proc read*(gpio: GpioPin): PinState =
-  gpio.port.readPin(gpio.pin)
+  gpio.port.read_pin(gpio.pin)
 
 proc toggle*(gpio: GpioPin) =
   gpio.port.toggle_pin(gpio.pin)
